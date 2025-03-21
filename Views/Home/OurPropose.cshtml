@@ -1,0 +1,458 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Recipes - swipe cards
+    </title>
+    <style>
+        body{
+            background-color: #f8bbd0;
+        }
+        .container {
+            width: 100%;
+            max-width: 360px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        .cards-container {
+            margin-top: 20px;
+            position: relative;
+            height: 500px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            border: solid 3px rgb(240, 191, 135);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background-color: rgb(240, 221, 135);
+            transition: transform 0.3s ease;
+            cursor: grab;
+            user-select: none;
+        }
+
+            .card.next {
+                top: 5px;
+                transform: scale(0.95);
+                z-index: 1;
+            }
+
+            .card.current {
+                z-index: 2;
+            }
+
+        .card-image {
+            width: 100%;
+            height: 50%;
+            object-fit: cover;
+        }
+
+        .card-info {
+            padding: 15px;
+            position: relative;
+            height: 50%;
+            overflow-y: auto;
+        }
+
+        .card-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to top, rgba(240,128,165, 0.7), transparent);
+            z-index: 1;
+        }
+
+        .card-title {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 2;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+        }
+
+        .card-description {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .card-ingredients {
+            margin-bottom: 10px;
+        }
+
+        .card-ingredients-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .card-ingredients-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+            .card-ingredients-list li {
+                margin-bottom: 3px;
+                font-size: 13px;
+            }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+            .button:hover {
+                transform: translateY(-2px);
+            }
+
+        .button-dislike {
+            background-color: white;
+            color: #fd5068;
+        }
+
+            .button-dislike:hover {
+                background-color: #ffebee;
+            }
+
+        .button-like {
+            background-color: white;
+            color: #1de9b6;
+        }
+
+            .button-like:hover {
+                background-color: #e0f7fa;
+            }
+
+        .button svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .no-cards {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #efc97d;
+            border-radius: 15px;
+            color: #db79db;
+            font-size: 18px;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #efc97d;
+            border-radius: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .saved-recipes {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .saved-recipes-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cards-container" id="cards-container">
+            <div class="loading">Loading recipes...</div>
+        </div>
+
+        <div class="buttons" id="buttons">
+            <button class="button button-dislike" id="dislike-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <button class="button button-like" id="like-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+            </button>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const ingredients = JSON.parse(sessionStorage.getItem('ingredients')) || [];
+            let recipes = [];
+            let currentIndex = 0;
+            let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+            updateSavedCounter();
+            fetchRecipes();
+            function fetchRecipes() {
+                $.ajax({
+                    url: '/Home/GetRecipesByIngredients',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(ingredients),
+                    success: function (data) {
+                        recipes = data;
+                        if (recipes.length > 0) {
+                            renderCards();
+                        } else {
+                            showNoRecipesMessage();
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error:', error);
+                        showErrorMessage();
+                    }
+                });
+            }
+
+            function renderCards() {
+                const $container = $('#cards-container');
+                $container.empty();
+
+                if (currentIndex >= recipes.length) {
+                    showNoMoreRecipesMessage();
+                    return;
+                }
+
+           
+                const currentRecipe = recipes[currentIndex];
+                $container.append(`
+                          <div class="card current" id="current-card" data-id="${currentIndex}">
+                            <div style="position: relative; height: 50%;">
+                              <img src="${currentRecipe.imageurl || '/images/default-recipe.jpg'}" class="card-image" alt="${currentRecipe.title}" onerror="this.src='/images/default-recipe.jpg'">
+                              <div class="card-gradient"></div>
+                              <div class="card-title">${currentRecipe.title}</div>
+                            </div>
+                            <div class="card-info">
+                              <div class="card-description">${currentRecipe.description}</div>
+                              <div class="card-ingredients">
+                                        <div class="card-ingredients-title">Ingredients
+        :</div>
+                                <ul class="card-ingredients-list">
+                                  ${currentRecipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        `);
+
+          
+                if (currentIndex < recipes.length - 1) {
+                    const nextRecipe = recipes[currentIndex + 1];
+                    $container.append(`
+                            <div class="card next" data-id="${currentIndex + 1}">
+                              <div style="position: relative; height: 50%;">
+                                <img src="${nextRecipe.imageurl || '/images/default-recipe.jpg'}" class="card-image" alt="${nextRecipe.title}" onerror="this.src='/images/default-recipe.jpg'">
+                                <div class="card-gradient"></div>
+                                <div class="card-title">${nextRecipe.title}</div>
+                              </div>
+                              <div class="card-info">
+                                <div class="card-description">${nextRecipe.description}</div>
+                                <div class="card-ingredients">
+                                          <div class="card-ingredients-title">Ingredients
+        :</div>
+                                  <ul class="card-ingredients-list">
+                                    ${nextRecipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+                          `);
+                }
+
+                setupDraggable();
+            }
+
+            function setupDraggable() {
+                const $card = $('#current-card');
+                let startX = 0;
+                let currentX = 0;
+                let isDragging = false;
+
+                $card.on('mousedown touchstart', function (e) {
+                    startX = e.type === 'mousedown' ? e.pageX : e.originalEvent.touches[0].pageX;
+                    isDragging = true;
+                });
+                $(document).on('mousemove touchmove', function (e) {
+                    if (!isDragging) return;
+
+                    currentX = e.type === 'mousemove' ? e.pageX : e.originalEvent.touches[0].pageX;
+                    const diffX = currentX - startX;
+
+                    if (Math.abs(diffX) > 10) {
+                        e.preventDefault();
+                        const rotation = diffX / 20;
+                        $card.css({
+                            'transform': `translateX(${diffX}px) rotate(${rotation}deg)`
+                        });
+                    }
+                });
+
+       
+                $(document).on('mouseup touchend', function () {
+                    if (!isDragging) return;
+
+                    const diffX = currentX - startX;
+
+                    if (Math.abs(diffX) > 100) {
+                
+                        const direction = diffX > 0 ? 'right' : 'left';
+                        swipeCard(direction);
+                    } else {
+                
+                        $card.css({
+                            'transform': '',
+                            'transition': 'transform 0.3s'
+                        });
+                        setTimeout(function () {
+                            $card.css('transition', '');
+                        }, 300);
+                    }
+
+                    isDragging = false;
+                });
+            }
+
+     
+            function swipeCard(direction) {
+                const $card = $('#current-card');
+                const translateX = direction === 'right' ? window.innerWidth : -window.innerWidth;
+                const rotation = direction === 'right' ? 30 : -30;
+
+ 
+                if (direction === 'right') {
+                    saveRecipe(recipes[currentIndex]);
+                }
+
+                $card.css({
+                    'transform': `translateX(${translateX}px) rotate(${rotation}deg)`,
+                    'transition': 'transform 0.5s'
+                });
+
+                setTimeout(function () {
+                    currentIndex++;
+                    renderCards();
+                }, 300);
+            }
+
+
+            function saveRecipe(recipe) {
+
+                const isDuplicate = savedRecipes.some(saved =>
+                    saved.title === recipe.title
+                );
+
+                if (!isDuplicate) {
+                    savedRecipes.push(recipe);
+                    localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+                    updateSavedCounter();
+                }
+            }
+
+            function updateSavedCounter() {
+                $('#view-saved').text(`View saved recipes (${savedRecipes.length})`);
+            }
+
+            function showNoRecipesMessage() {
+                const $container = $('#cards-container');
+                $container.html(`
+                            <div class="no-cards">
+                                        <p>No recipes found for your ingredients.</p>
+                                        <p>Try adding more ingredients or changing your selection</p>
+                                             
+                            </div>
+                        `);
+                $('#buttons').hide();
+            }
+
+         
+            function showNoMoreRecipesMessage() {
+                const $container = $('#cards-container');
+                $container.html(`
+                            <div class="no-cards">
+                                        <p>No more recipes</p>
+                                        <p>
+        You have viewed all available recipes for your ingredients.</p>
+                            </div>
+                        `);
+                $('#buttons').hide();
+            }
+
+          
+            function showErrorMessage() {
+                const $container = $('#cards-container');
+                $container.html(`
+                            <div class="no-cards">
+                                        <p>An error occurred while loading recipes.</p>
+                                        <p>Please try again later.
+        </p>
+                            </div>
+                        `);
+                $('#buttons').hide();
+            }
+
+     
+            $('#like-button').on('click', function () {
+                swipeCard('right');
+            });
+
+            $('#dislike-button').on('click', function () {
+                swipeCard('left');
+            });
+
+      
+            $('#view-saved').on('click', function () {
+                window.location.href = '/Home/SavedRecipes';
+            });
+        });
+    </script>
+</body>
+</html>

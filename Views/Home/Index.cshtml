@@ -1,0 +1,280 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fdf7e3;
+        }
+
+        .category-card {
+            height: 120px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #ffe5d9;
+            margin-bottom: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;  
+        }
+
+            .category-card:hover {
+                transform: scale(1.05);  
+                box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.2);  
+            }
+
+            .category-card:active {
+                transform: scale(0.95); 
+                box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2); 
+            }
+
+        .category-text {
+            font-size: 20px;
+            font-weight: bold;
+            padding-left: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6d6875;
+        }
+
+        .arrow {
+            width: 30px;
+            height: 30px;
+            margin-top: 5px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .category-img {
+            height: 120px;
+            width: 150px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid #f4a261;
+        }
+
+        .category-arrow {
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .btn-primary {
+            background-color: #ffb4a2;
+            border: none;
+        }
+
+            .btn-primary:hover {
+                background-color: #e5989b;
+            }
+
+        input.form-control {
+            border: 2px solid #ffb4a2;
+        }
+
+        .show {
+            display: flex;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        #searchInput:focus {
+            border-color: #ffb4a2 !important; 
+            box-shadow: 0 0 5px #ffb4a2 !important;  
+            outline: none !important; 
+        }
+
+        .propose-btn {
+            
+            background-color: #ffb4a2;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+            .propose-btn:hover {
+                color:aliceblue;
+                background-color: #ff9a8b;
+                transform: scale(1.05);
+            }
+
+            .propose-btn:active {
+                color: aliceblue;
+                background-color: #ff7f7a;
+                transform: scale(0.95);
+            }
+
+        
+
+    </style>
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="mb-3 d-flex">
+            <input type="text" id="searchInput" class="form-control me-2" placeholder="Search...">
+         </div>
+        <div class="d-flex gap-2 mt-3 mb-3 flex-wrap justify-content-center">
+            <button onclick="redirectToTikTok()" class="btn propose-btn" id="SearchTikTok">Search in TikTok</button>
+            <button class="btn propose-btn" id="aiask">Ask AI</button>           
+            <button class="btn propose-btn" id="OurPropose" onclick="redirectToPropose()">Our Propose</button>
+         </div>
+      
+        <div class="category-card show" id="Fruits" data-name="fruits">
+            <div class="category-text">
+                Fruits
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://www.healthyeating.org/images/default-source/home-0.0/nutrition-topics-2.0/general-nutrition-wellness/2-2-2-3foodgroups_fruits_detailfeature.jpg?sfvrsn=64942d53_4" alt="Fruits" class="category-img">
+        </div>
+
+        <div class="category-card show" id="Vegatables" data-name="vegetables">
+            <div class="category-text">
+                Vegetables
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://orthomol.life/image/cache/catalog/image/catalog/blog/zhovten/1610049153_shutterstock_1186809682.webp" alt="Vegetables" class="category-img">
+        </div>
+
+        <div class="category-card show" id="Dairy" data-name="dairy">
+            <div class="category-text">
+                Dairy
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://domf5oio6qrcr.cloudfront.net/medialibrary/9685/iStock-544807136.jpg" alt="Dairy" class="category-img">
+        </div>
+
+        <div class="category-card show" id="Meat" data-name="meat">
+            <div class="category-text">
+                Meat
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://eu-images.contentstack.com/v3/assets/bltcc046473819c9a19/blt4f2e410cabe53695/648590643837df9076d8c7bf/GettyImages-Meat.jpeg?width=1280&auto=webp&quality=95&format=jpg&disable=upscale" alt="Meat" class="category-img">
+        </div>
+        <div class="category-card show" id="GrainANDPasta" data-name="Grain&Pasta">
+            <div class="category-text">
+                Grain&Pasta
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://i.shgcdn.com/3c904e98-c402-4620-9b5c-1e55234c2e7c/-/format/auto/-/preview/3000x3000/-/quality/lighter/" alt="Grain&Pasta" class="category-img">
+        </div>
+        <div class="category-card show" id="Bakery" data-name="bakery">
+            <div class="category-text">
+                Bakery
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://www.fooodlove.com/images/jcogs_img/cache/012-close-up-view-of-freshly-baked-bakery_-_28de80_-_8782e36ca3e8764a9e4719edc333d3a48e3f4ae7.webp" alt="Bakery" class="category-img">
+        </div>
+
+        <div class="category-card show" id="FloursANDBakingIngredients" data-name="flours & baking ingredients">
+            <div class="category-text">
+                Flours & Baking Ingredients
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRj-AnKl1bUHZgt3oufey_qBUzwF5VlbZT3g&s" alt="Flours & Baking Ingredients" class="category-img">
+        </div>
+
+        <div class="category-card show" id="SpicesANDCondiments" data-name="spices & condiments">
+            <div class="category-text">
+                Spices & Condiments
+                <div class="category-arrow">
+                    <img class="arrow" src="/media/arrow-right-square-svgrepo-com.svg" />
+                </div>
+            </div>
+            <img src="https://foodtech101.food.blog/wp-content/uploads/2021/05/spices-and-condiments-by-food-tech-101-3.jpg" alt="Spices & Condiments" class="category-img">
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ 
+    <script>
+       
+         
+         document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function () {
+                var categoryId = this.id;  
+                if (categoryId) {
+                    window.location.href = "/Home/" + categoryId;  
+                }
+            });
+        });
+
+         const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const categoryCards = document.querySelectorAll('.category-card');
+
+         searchInput.addEventListener('input', filterCards);
+        searchButton.addEventListener('click', filterCards);
+
+        function filterCards() {
+            const searchValue = searchInput.value.toLowerCase();
+
+             if (searchValue === '') {
+                categoryCards.forEach(card => {
+                    card.classList.remove('hide');
+                    card.classList.add('show');
+                });
+                return;
+            }
+
+             categoryCards.forEach(card => {
+                const categoryName = card.getAttribute('data-name');
+
+                 const compareLength = Math.min(searchValue.length, 3);
+
+                if (categoryName.substring(0, compareLength) === searchValue.substring(0, compareLength)) {
+                    card.classList.remove('hide');
+                    card.classList.add('show');
+                } else {
+                    card.classList.remove('show');
+                    card.classList.add('hide');
+                }
+            });
+        }
+    </script>
+    <script>
+        function redirectToPropose() {
+            window.open('/Home/OurPropose');
+        }
+        function redirectToTikTok() {
+            window.open('https://www.tiktok.com/search?q=recipes', '_blank');
+        }
+        document.getElementById('aiask').addEventListener('click', function () {
+            const ingredients = JSON.parse(sessionStorage.getItem('ingredients')) || [];
+
+            if (ingredients.length === 0) {
+                alert('First, choose the ingredients!');
+                return;
+            }
+
+            window.location.href = '/Home/AIResults';
+        });
+    </script>
+ 
+ 
+</body>
+</html>

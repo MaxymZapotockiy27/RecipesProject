@@ -1,0 +1,174 @@
+﻿@{
+    ViewData["Title"] = "Recipes by AI";
+}
+
+<style>
+    body {
+        background-color: #FFE4E1;
+        color: #444;
+    }
+
+    .card {
+        background-color: #FFFACD;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #FFDAB9;
+        color: #444;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .btn-secondary {
+        background-color: #FFDAB9;
+        border: none;
+        color: #444;
+    }
+
+        .btn-secondary:hover {
+            background-color: #FFC0A9;
+        }
+
+    .bg-primary {
+        background-color: #ea8cbf
+    }
+
+    #loadingIndicator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px; 
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4 text-center">Recipes based on your ingredients</h1>
+            <div id="loadingIndicator" class="text-center">
+                <div id="loadinglottie"></div>
+            </div>
+            <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
+            <div id="recipesContainer" class="row" style="display: none;"></div>
+            <div class="text-center mt-4">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ingredients = JSON.parse(sessionStorage.getItem('ingredients')) || [];
+
+            if (ingredients.length === 0) {
+                showError('No ingredients found. Please select ingredients first.');
+                return;
+            }
+
+            fetchRecipes(ingredients);
+        });
+
+        // Lottie setup
+        var animation = lottie.loadAnimation({
+            container: document.getElementById("loadinglottie"),
+            renderer: "svg",
+            loop: true,
+            autoplay: true,
+            path: "/lottie/Animation - 1742523623594.json"
+        });
+
+
+        function fetchRecipes(ingredients) {
+            // Show loading indicator when fetch starts
+            document.getElementById('loadingIndicator').style.display = 'flex';
+            fetch('@Url.Action("GetAIRecipes", "Home")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ ingredients: ingredients })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(text || 'Error retrieving recipes');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(recipes => {
+                    displayRecipes(recipes);
+                })
+                .catch(error => {
+                    showError('Error: ' + error.message);
+                })
+                .finally(() => {
+                    // Hide loading indicator after fetch (success or error)
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                });
+        }
+
+        function displayRecipes(recipes) {
+            const container = document.getElementById('recipesContainer');
+            container.style.display = 'flex';
+            container.innerHTML = '';
+
+            if (!recipes || recipes.length === 0) {
+                showError('Unfortunately, no recipes were found for your ingredients.');
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                const recipeCard = document.createElement('div');
+                recipeCard.className = 'col-md-6 mb-4';
+
+                let ingredientsList = '';
+                if (recipe.ingredients && recipe.ingredients.length) {
+                    ingredientsList = recipe.ingredients.map(ing => `<li>${ing}</li>`).join('');
+                }
+
+                let instructionsList = '';
+                if (recipe.instructions && recipe.instructions.length) {
+                    instructionsList = recipe.instructions.map((step, index) =>
+                        `<li class="mb-2"><strong>${index + 1}.</strong> ${step}</li>`
+                    ).join('');
+                }
+
+                recipeCard.innerHTML = `
+                        <div class="card h-100">
+                            <div class="card-header   text-white">
+                                            <h5 class="card-title mb-0">${recipe.title || 'Untitled'}</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">${recipe.description || 'There is no description'}</p>
+
+                                <h6 class="font-weight-bold">Ingredients:</h6>
+                                <ul>${ingredientsList}</ul>
+
+                                <h6 class="font-weight-bold">Instructions:</h6>
+                                <ol class="pl-3">${instructionsList}</ol>
+                            </div>
+                        </div>
+                        `;
+
+                container.appendChild(recipeCard);
+            });
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+
+            // Hide loading indicator when error is shown
+            document.getElementById('loadingIndicator').style.display = 'none';
+
+            document.getElementById('recipesContainer').style.display = 'none';
+        }
+    </script>
+}
